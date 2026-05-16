@@ -36,16 +36,13 @@ with col_kiri:
         sub_col1, sub_col2 = st.columns(2)
         
         with sub_col1:
-            v1 = st.text_input("Engine Size (L)", placeholder="e.g. 2.0")
-            v3 = st.text_input("Wheelbase (inch)", placeholder="e.g. 105")
-            v5 = st.text_input("Length (inch)", placeholder="e.g. 180")
-            v7 = st.text_input("Fuel Capacity (gal)", placeholder="e.g. 15")
+            v1 = st.text_input("Engine Size (L)", placeholder="e.g. 2.4")
+            v3 = st.text_input("Curb Weight (ton)", placeholder="e.g. 3.1")
+            v5 = st.text_input("Fuel Efficiency (mpg)", placeholder="e.g. 24.0")
             
         with sub_col2:
-            v2 = st.text_input("Horsepower (HP)", placeholder="e.g. 150")
-            v4 = st.text_input("Width (inch)", placeholder="e.g. 70")
-            v6 = st.text_input("Curb Weight (ton)", placeholder="e.g. 1.5")
-            v8 = st.text_input("Fuel Efficiency (mpg)", placeholder="e.g. 28")
+            v2 = st.text_input("Horsepower (HP)", placeholder="e.g. 180")
+            v4 = st.text_input("Fuel Capacity (gal)", placeholder="e.g. 16.5")
         
         # Tombol tetap di bawah, melebar penuh melewati kedua sub-kolom
         st.write("") # Kasih sedikit jarak kosong
@@ -56,34 +53,40 @@ with col_kanan:
     
     if hitung:
         try:
-            # Konversi input teks ke float agar bisa diproses model AI
-            inputs = [float(x) for x in [v1, v2, v3, v4, v5, v6, v7, v8]]
+            # Konversi input teks ke float
+            inputs = [float(x) for x in [v1, v2, v3, v4, v5]]
             
-            input_data = np.array([inputs])
-            prediksi = model.predict(input_data)[0]
+            # REVISI: Mengubah data menjadi DataFrame dengan nama kolom yang pas dengan model backend
+            input_df = pd.DataFrame([{
+                'Engine_size': inputs[0],
+                'Horsepower': inputs[1],
+                'Curb_weight': inputs[2],
+                'Fuel_capacity': inputs[3],
+                'Fuel_efficiency': inputs[4]
+            }])
+            
+            # Prediksi menggunakan DataFrame baru
+            prediksi = model.predict(input_df)[0]
             
             # Tampilan Hasil (Kotak Kuning sesuai coretan dosen)
             st.markdown(f"""
                 <div class="result-card">
                     <p style="margin:0; font-size: 1.2rem; color: #856404; font-weight: bold;">PERKIRAAN HARGA JUAL</p>
-                    <h1 style="color: #fbc02d; font-size: 3.5rem; margin:0;">${prediksi:.3f}</h1>
+                    <h1 style="color: #fbc02d; font-size: 3.5rem; margin:0;">${prediksi:.2f}</h1>
                     <p style="color: #856404;">(dalam ribuan USD)</p>
                 </div>
             """, unsafe_allow_html=True)
             
-            # Detail Spesifikasi Input yang Benar & Sesuai nama asli variabel
+            # Detail Spesifikasi Input yang Benar & Sesuai 5 variabel terpilih
             st.write("#### Detail Spesifikasi Input:")
             col_a, col_b = st.columns(2)
             with col_a:
                 st.write(f"**Engine Size:** {v1} L")
                 st.write(f"**Horsepower:** {v2} HP")
-                st.write(f"**Wheelbase:** {v3} in")
-                st.write(f"**Width:** {v4} in")
+                st.write(f"**Curb Weight:** {v3} ton")
             with col_b:
-                st.write(f"**Length:** {v5} in")
-                st.write(f"**Curb Weight:** {v6} ton")
-                st.write(f"**Fuel Capacity:** {v7} gal")
-                st.write(f"**Fuel Efficiency:** {v8} mpg")
+                st.write(f"**Fuel Capacity:** {v4} gal")
+                st.write(f"**Fuel Efficiency:** {v5} mpg")
                 
         except ValueError:
             st.error("⚠️ Pastikan semua kolom diisi dengan angka dan tidak boleh ada yang kosong!")
